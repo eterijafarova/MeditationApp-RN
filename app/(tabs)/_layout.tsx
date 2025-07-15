@@ -1,45 +1,89 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import { FontAwesome5, FontAwesome6, Ionicons } from "@expo/vector-icons";
+import dayjs from "dayjs";
+import { Tabs } from "expo-router";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useColorScheme } from "react-native";
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+type Theme = "light" | "dark";
+
+interface ThemeContextProps {
+  theme: Theme;
+}
+
+const ThemeContext = createContext<ThemeContextProps>({ theme: "light" });
+
+export function useTheme() {
+  return useContext(ThemeContext);
+}
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const systemColorScheme = useColorScheme();
+  const [theme, setTheme] = useState<Theme>("light");
+
+  useEffect(() => {
+    const updateThemeByTime = () => {
+      const hour = dayjs().hour();
+      setTheme(hour >= 6 && hour < 18 ? "light" : "dark");
+    };
+
+    updateThemeByTime();
+    const interval = setInterval(updateThemeByTime, 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
+    <ThemeContext.Provider value={{ theme }}>
+      <Tabs
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: theme === "light" ? "#8e97fd" : "#f9d97b",
+          tabBarInactiveTintColor: "#999",
+          tabBarStyle: {
+            backgroundColor: theme === "light" ? "#fff" : "#0B0F2F",
+            borderTopWidth: 0,
+            elevation: 5,
+            height: 60,
+            paddingBottom: 6,
           },
-          default: {},
-        }),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarLabelStyle: {
+            fontSize: 12,
+            fontWeight: "600",
+          },
         }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="Home"
+          options={{
+            title: "Home",
+            tabBarLabel: "Home",
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesome5 name="home" size={size} color={color} />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="Meditate"
+          options={{
+            title: "Meditate",
+            tabBarLabel: "Meditate",
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesome6 name="mountain-sun" size={size} color={color} />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="Profile"
+          options={{
+            title: "Profile",
+            tabBarLabel: "Profile",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person-outline" size={size} color={color} />
+            ),
+          }}
+        />
+      </Tabs>
+    </ThemeContext.Provider>
   );
 }
