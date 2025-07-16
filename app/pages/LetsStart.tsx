@@ -7,15 +7,15 @@ import {
   StyleSheet,
   Text,
   View,
-  useColorScheme,
 } from "react-native";
+import { useTheme } from "../Theme";
 
 const { width, height } = Dimensions.get("window");
 
 export default function LetsStart() {
-  const colorScheme = useColorScheme();
   const router = useRouter();
-  const isDark = colorScheme === "dark";
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <View
@@ -34,8 +34,8 @@ export default function LetsStart() {
         resizeMode="contain"
       />
 
-      <Text style={[styles.title, { color: isDark ? "#fff" : "#fff" }]}>
-        {isDark ? "Welcome to Sleep" : "Hi Afsar, Welcome to Silent Moon"}
+      <Text style={[styles.title, { color: "#fff" }]}>
+        {isDark ? "Welcome to Sleep" : "Hi, Welcome to Silent Moon"}
       </Text>
 
       <Text style={[styles.subtitle, { color: isDark ? "#ccc" : "#e6e6e6" }]}>
@@ -63,8 +63,8 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
   illustration: {
-    width: width * 0.8,
-    height: height * 0.4,
+    width: 400,
+    height: 400,
     marginBottom: 40,
   },
   title: {
